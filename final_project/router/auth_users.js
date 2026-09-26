@@ -5,29 +5,34 @@ const regd_users = express.Router();
 
 let users = [];
 
+/**
+ * Check if the username already exists in the records.
+ * @param {string} username - The username to check.
+ * @returns {boolean} True if username already exists, false otherwise.
+ */
 const isValid = (username) => {
-    // Check if the username already exists in the records
-    let userswithsamename = users.filter((user) => {
-        return user.username === username;
-    });
-    return userswithsamename.length > 0;
+    return users.some((user) => user.username === username);
 };
 
+/**
+ * Verify if username and password match registered credentials.
+ * @param {string} username - Registered username.
+ * @param {string} password - User password.
+ * @returns {boolean} True if credentials match, false otherwise.
+ */
 const authenticatedUser = (username, password) => {
-    // Check if username and password match records
-    let matchingUsers = users.filter((user) => {
-        return (user.username === username && user.password === password);
-    });
-    return matchingUsers.length > 0;
+    return users.some((user) => user.username === username && user.password === password);
 };
 
+// ==========================================
 // Task 7: Only registered users can login
+// ==========================================
 regd_users.post("/login", (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
 
     if (!username || !password) {
-        return res.status(404).json({ message: "Error logging in. Username and password are required." });
+        return res.status(404).json({ message: "Error logging in: Username and password are required." });
     }
 
     if (authenticatedUser(username, password)) {
@@ -39,13 +44,15 @@ regd_users.post("/login", (req, res) => {
             accessToken,
             username
         };
-        return res.status(200).send("Customer successfully logged in");
+        return res.status(200).send("User successfully logged in");
     } else {
         return res.status(208).json({ message: "Invalid Login. Check username and password" });
     }
 });
 
+// ==========================================
 // Task 8: Add or modify a book review
+// ==========================================
 regd_users.put("/auth/review/:isbn", (req, res) => {
     const isbn = req.params.isbn;
     const review = req.query.review;
@@ -65,10 +72,12 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
 
     // Add or modify review under this username
     books[isbn].reviews[username] = review;
-    return res.status(200).send(`The review for the book with ISBN ${isbn} has been added/updated.`);
+    return res.status(200).send(`The review for the book with ISBN ${isbn} has been added/updated.\n${JSON.stringify(books[isbn].reviews, null, 4)}`);
 });
 
+// ==========================================
 // Task 9: Delete a book review
+// ==========================================
 regd_users.delete("/auth/review/:isbn", (req, res) => {
     const isbn = req.params.isbn;
     const username = req.session.authorization ? req.session.authorization['username'] : null;

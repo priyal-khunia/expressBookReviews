@@ -1,2 +1,5 @@
 curl -X PUT "http://localhost:5000/customer/auth/review/1?review=This%20book%20is%20truly%20a%20masterpiece" -b cookie.txt
 The review for the book with ISBN 1 has been added/updated.
+{
+    "testuser": "This book is truly a masterpiece"
+}
